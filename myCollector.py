@@ -1,32 +1,17 @@
-#! /usr/bin/python
-#Copyright 2014 Jeremy Carroll
-#
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
-
-
 import collectd
 import json
 import urllib2
 import socket
 import collections
+import requests
 
 PREFIX = "elasticsearch"
 ES_CLUSTER = "elasticsearch"
 ES_HOST = "localhost"
-ES_PORT = 9211
+ES_PORT = 9200
 ES_VERSION = "1.0"
 ES_URL = ""
-VERBOSE_LOGGING = False
+VERBOSE_LOGGING = True
 
 Stat = collections.namedtuple('Stat', ('type', 'path'))
 
@@ -51,6 +36,21 @@ STATS_ES1 = {
     'jvm.gc.count': Stat("counter", "nodes.%s.jvm.gc.collectors.young.collection_count"),
     'jvm.gc.old-time': Stat("counter", "nodes.%s.jvm.gc.collectors.old.collection_time_in_millis"),
     'jvm.gc.old-count': Stat("counter", "nodes.%s.jvm.gc.collectors.old.collection_count"),
+
+    #JEFF
+    'jvm.gc.young-count': Stat("counter", "nodes.%s.jvm.gc.collectors.young.collection_count"),
+    'jvm.gc.young-time': Stat("counter", "nodes.%s.jvm.gc.collectors.young.collection_time_in_millis"),
+
+    'jvm.pools.young-used': Stat("counter", "nodes.%s.jvm.mem.pools.young.used_in_bytes"),
+    'jvm.pools.young-max': Stat("counter", "nodes.%s.jvm.mem.pools.young.max_in_bytes"),
+    'jvm.pools.survivor-used': Stat("counter", "nodes.%s.jvm.mem.pools.survivor.used_in_bytes"),
+    'jvm.pools.survivor-max': Stat("counter", "nodes.%s.jvm.mem.pools.survivor.max_in_bytes"),
+    'jvm.pools.old-used': Stat("counter", "nodes.%s.jvm.mem.pools.old.used_in_bytes"),
+    'jvm.pools.old-max': Stat("counter", "nodes.%s.jvm.mem.pools.old.max_in_bytes"),
+
+    'jvm.threads.count': Stat("counter", "nodes.%s.jvm.threads.count"),
+    'jvm.threads.peak_count': Stat("counter", "nodes.%s.jvm.threads.peak_count"),
+
 
     ## FLUSH
     'indices.flush.total': Stat("counter", "nodes.%s.indices.flush.total"),
@@ -185,12 +185,12 @@ def configure_callback(conf):
 
     # add info on thread pools
     for pool in ['generic', 'index', 'get', 'snapshot', 'merge', 'optimize', 'bulk', 'warmer', 'flush', 'search', 'refresh']:
-      for attr in ['threads', 'queue', 'active', 'largest']:
-        path = 'thread_pool.{0}.{1}'.format(pool, attr)
-        STATS_CUR[path] = Stat("gauge", 'nodes.%s.{0}'.format(path))
-      for attr in ['completed', 'rejected']:
-        path = 'thread_pool.{0}.{1}'.format(pool, attr)
-        STATS_CUR[path] = Stat("counter", 'nodes.%s.{0}'.format(path))
+        for attr in ['threads', 'queue', 'active', 'largest']:
+            path = 'thread_pool.{0}.{1}'.format(pool, attr)
+            STATS_CUR[path] = Stat("gauge", 'nodes.%s.{0}'.format(path))
+        for attr in ['completed', 'rejected']:
+            path = 'thread_pool.{0}.{1}'.format(pool, attr)
+            STATS_CUR[path] = Stat("counter", 'nodes.%s.{0}'.format(path))
 
     log_verbose('Configured with version=%s, host=%s, port=%s, url=%s' % (ES_VERSION, ES_HOST, ES_PORT, ES_URL))
 
@@ -221,21 +221,17 @@ def dispatch_stat(result, name, key):
     if result is None:
         collectd.warning('elasticsearch plugin: Value not found for %s' % name)
         return
+
     estype = key.type
     value = int(result)
     log_verbose('Sending value[%s]: %s=%s' % (estype, name, value))
 
-    val = collectd.Values(plugin='elasticsearch')
-    val.plugin_instance = ES_CLUSTER
-    val.type = estype
-    val.type_instance = name
-    val.values = [value]
-    val.dispatch()
-
-
-def read_callback():
-    log_verbose('Read callback called')
-    stats = fetch_stats()
+    # val = collectd.Values(plugin='elasticsearch')
+    # val.plugin_instance = ES_CLUSTER
+    # val.type = estype
+    # val.type_instance = name
+    # val.values = [value]
+    # val.dispatch()
 
 
 def dig_it_up(obj, path):
@@ -250,7 +246,25 @@ def dig_it_up(obj, path):
 def log_verbose(msg):
     if not VERBOSE_LOGGING:
         return
-    collectd.info('elasticsearch plugin [verbose]: %s' % msg)
 
-collectd.register_config(configure_callback)
-collectd.register_read(read_callback)
+    print 'elasticsearch plugin [verbose]: %s' % msg
+
+
+
+ES_URL = "http://" + ES_HOST + ":" + str(ES_PORT) + "/_nodes/_local/stats/transport,http,process,jvm,indices,thread_pool"
+STATS_CUR = dict(STATS.items() + STATS_ES1.items())
+
+# add info on thread pools
+for pool in ['generic', 'index', 'get', 'snapshot', 'merge', 'optimize', 'bulk', 'warmer', 'flush', 'search', 'refresh']:
+    for attr in ['threads', 'queue', 'active', 'largest']:
+        path = 'thread_pool.{0}.{1}'.format(pool, attr)
+        STATS_CUR[path] = Stat("gauge", 'nodes.%s.{0}'.format(path))
+    for attr in ['completed', 'rejected']:
+        path = 'thread_pool.{0}.{1}'.format(pool, attr)
+        STATS_CUR[path] = Stat("counter", 'nodes.%s.{0}'.format(path))
+
+
+r = requests.get(ES_URL)
+response = r.json()
+
+parse_stats(response)

@@ -1,0 +1,176 @@
+{
+  "timestamp": 1433376981350,
+  "cluster_name": "e2e",
+  "status": "green",
+  "indices": {
+    "count": 19,
+    "shards": {
+      "total": 228,
+      "primaries": 114,
+      "replication": 1,
+      "index": {
+        "shards": {
+          "min": 12,
+          "max": 12,
+          "avg": 12
+        },
+        "primaries": {
+          "min": 6,
+          "max": 6,
+          "avg": 6
+        },
+        "replication": {
+          "min": 1,
+          "max": 1,
+          "avg": 1
+        }
+      }
+    },
+    "docs": {
+      "count": 172552,
+      "deleted": 1698
+    },
+    "store": {
+      "size_in_bytes": 417292746,
+      "throttle_time_in_millis": 0
+    },
+    "fielddata": {
+      "memory_size_in_bytes": 5271556,
+      "evictions": 0
+    },
+    "filter_cache": {
+      "memory_size_in_bytes": 16068,
+      "evictions": 0
+    },
+    "id_cache": {
+      "memory_size_in_bytes": 0
+    },
+    "completion": {
+      "size_in_bytes": 0
+    },
+    "segments": {
+      "count": 488,
+      "memory_in_bytes": 16192432,
+      "index_writer_memory_in_bytes": 0,
+      "index_writer_max_memory_in_bytes": 13189140480,
+      "version_map_memory_in_bytes": 9348336,
+      "fixed_bit_set_memory_in_bytes": 0
+    },
+    "percolate": {
+      "total": 0,
+      "time_in_millis": 0,
+      "current": 0,
+      "memory_size_in_bytes": -1,
+      "memory_size": "-1b",
+      "queries": 0
+    }
+  },
+  "nodes": {
+    "count": {
+      "total": 14,
+      "master_only": 3,
+      "data_only": 11,
+      "master_data": 0,
+      "client": 0
+    },
+    "versions": [
+      "1.4.4"
+    ],
+    "os": {
+      "available_processors": 56,
+      "mem": {
+        "total_in_bytes": 196347793408
+      },
+      "cpu": [
+        {
+          "vendor": "Intel",
+          "model": "Xeon",
+          "mhz": 2494,
+          "total_cores": 4,
+          "total_sockets": 4,
+          "cores_per_socket": 32,
+          "cache_size_in_bytes": 25600,
+          "count": 14
+        }
+      ]
+    },
+    "process": {
+      "cpu": {
+        "percent": 13
+      },
+      "open_file_descriptors": {
+        "min": 510,
+        "max": 767,
+        "avg": 692
+      }
+    },
+    "jvm": {
+      "max_uptime_in_millis": 1149470968,
+      "versions": [
+        {
+          "version": "1.8.0_31",
+          "vm_name": "OpenJDK 64-Bit Server VM",
+          "vm_version": "25.31-b07",
+          "vm_vendor": "Oracle Corporation",
+          "count": 3
+        },
+        {
+          "version": "1.8.0_45",
+          "vm_name": "OpenJDK 64-Bit Server VM",
+          "vm_version": "25.45-b02",
+          "vm_vendor": "Oracle Corporation",
+          "count": 11
+        }
+      ],
+      "mem": {
+        "heap_used_in_bytes": 34750552152,
+        "heap_max_in_bytes": 104690483200
+      },
+      "threads": 1053
+    },
+    "fs": {
+      "total_in_bytes": 1316530786304,
+      "free_in_bytes": 1313227087872,
+      "available_in_bytes": 1246327537664,
+      "disk_reads": 7669,
+      "disk_writes": 277563860,
+      "disk_io_op": 277571529,
+      "disk_read_size_in_bytes": 37518336,
+      "disk_write_size_in_bytes": 8969035784192,
+      "disk_io_size_in_bytes": 8969073302528
+    },
+    "plugins": [
+      {
+        "name": "cloud-aws",
+        "version": "2.4.1",
+        "description": "Cloud AWS Plugin",
+        "jvm": true,
+        "site": false
+      },
+      {
+        "name": "kopf",
+        "version": "1.5.3",
+        "description": "kopf - simple web administration tool for ElasticSearch",
+        "url": "/_plugin/kopf/",
+        "jvm": false,
+        "site": true
+      },
+      {
+        "name": "kopf",
+        "version": "1.4.7",
+        "description": "kopf - simple web administration tool for ElasticSearch",
+        "url": "/_plugin/kopf/",
+        "jvm": false,
+        "site": true
+      },
+      {
+        "name": "HQ",
+        "version": "NA",
+        "description": "No description found.",
+        "url": "/_plugin/HQ/",
+        "jvm": false,
+        "site": true
+      }
+    ]
+  }
+}
